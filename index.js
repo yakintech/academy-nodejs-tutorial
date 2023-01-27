@@ -1,6 +1,8 @@
 const express = require('express');
 const { default: mongoose } = require('mongoose');
 const { categoryService } = require('./service/categoryService');
+const { body, validationResult } = require('express-validator');
+
 
 const { Schema } = mongoose
 
@@ -36,7 +38,10 @@ const categorySchema = Schema({
 const productSchema = Schema({
     name: String,
     unitPrice: Number,
-    unitsInStock: Number,
+    unitsInStock: {
+        type: Number,
+        required: true
+    },
     categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
 })
 
@@ -73,25 +78,38 @@ app.get('/api/products', function (req, res) {
 })
 
 
-app.post('/api/products', function (req, res) {
+app.post('/api/products',
+    body('name')
+        .notEmpty().withMessage("Name alanı boş bırakılmaz")
+    ,
+    body('unitPrice')
+        .isNumeric().withMessage("fiyat nerede gardaş"),
 
-    let newProduct = new product({
-        name: req.body.name,
-        unitPrice: req.body.unitPrice,
-        unitsInStock: req.body.unitsInStock,
-        categoryId: req.body.categoryId
-    })
+    function (req, res) {
 
-    newProduct.save(function (err, doc) {
-        if (!err) {
-            res.json(doc)
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
         }
-        else {
-            res.status(500).json(err)
-        }
-    })
 
-})
+
+        let newProduct = new product({
+            name: req.body.name,
+            unitPrice: req.body.unitPrice,
+            unitsInStock: req.body.unitsInStock,
+            categoryId: req.body.categoryId
+        })
+
+        newProduct.save(function (err, doc) {
+            if (!err) {
+                res.json(doc)
+            }
+            else {
+                res.status(500).json(err)
+            }
+        })
+
+    })
 
 
 app.post('/api/categories', function (req, res) {
