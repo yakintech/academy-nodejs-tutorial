@@ -3,6 +3,7 @@ const { default: mongoose } = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const contactRouter = require('./routes/contactRouter');
 const productRouter = require('./routes/productRoutes')
+const cors = require("cors");
 
 const app = express();
 
@@ -17,14 +18,13 @@ mongoose.connect("mongodb+srv://cagatay:jYjpMvn5WXivq4uh@cluster0.imfaisw.mongod
 app.use('/api/contact', contactRouter);
 app.use('/api/products', productRouter);
 
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept , Authorization"
-    );
-    next();
-});
+app.use(
+    cors({
+      origin: "*",
+      credentials: true,
+    })
+  );
+  
 
 
 app.use(function (req, res, next) {
