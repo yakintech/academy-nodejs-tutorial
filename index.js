@@ -26,7 +26,24 @@ const webuserSchema = new Schema({
     addDate: { type: Date, default: Date.now }
 })
 
+
+
+const categorySchema = Schema({
+    name: String,
+    description: String
+})
+
+const productSchema = Schema({
+    name: String,
+    unitPrice: Number,
+    unitsInStock: Number,
+    categoryId: { type: Schema.Types.ObjectId, ref: 'Category' },
+})
+
+
 const webUser = mongoose.model('WebUser', webuserSchema)
+const category = mongoose.model('Category', categorySchema)
+const product = mongoose.model('Product', productSchema)
 
 
 app.use(function (req, res, next) {
@@ -39,15 +56,64 @@ app.use(function (req, res, next) {
     }
 
 })
-
 app.use(express.json());
 app.use(express.urlencoded());
+
+
+app.get('/api/products', function (req, res) {
+
+    product.find({}).populate('categoryId').exec(function (err, docs) {
+        if (!err) {
+            res.json(docs)
+        }
+        else {
+            res.status(500).json(err);
+        }
+    })
+})
+
+
+app.post('/api/products', function (req, res) {
+
+    let newProduct = new product({
+        name: req.body.name,
+        unitPrice: req.body.unitPrice,
+        unitsInStock: req.body.unitsInStock,
+        categoryId: req.body.categoryId
+    })
+
+    newProduct.save(function (err, doc) {
+        if (!err) {
+            res.json(doc)
+        }
+        else {
+            res.status(500).json(err)
+        }
+    })
+
+})
+
+
+app.post('/api/categories', function (req, res) {
+
+    let newCategory = new category({
+        name: req.body.name,
+        description: req.body.description
+    });
+
+    newCategory.save(function (err, doc) {
+        if (!err) {
+            res.json(doc);
+        }
+    })
+
+})
+
 
 app.get('/', function (req, res) {
     res.json("Hello");
 })
 
-//POST-GET-GETBYID-PUT-DELETE
 
 app.get('/api/webusers', (req, res) => {
     webUser.find({ isDeleted: false }, function (err, docs) {
@@ -90,9 +156,13 @@ app.delete('/api/webusers/:id', (req, res) => {
 
         doc.isDeleted = true;
         doc.save();
-        res.json({'message':'success'})
+        res.json({ 'message': 'success' })
     })
 
 })
 
 app.listen(8080);
+
+
+
+
