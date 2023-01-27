@@ -3,7 +3,6 @@ const { default: mongoose } = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const contactRouter = require('./routes/contactRouter');
 const productRouter = require('./routes/productRoutes')
-const { categorySchema } = require('./models/Category');
 
 const app = express();
 
@@ -18,6 +17,15 @@ mongoose.connect("mongodb+srv://cagatay:jYjpMvn5WXivq4uh@cluster0.imfaisw.mongod
 app.use('/api/contact', contactRouter);
 app.use('/api/products', productRouter);
 
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Origin, X-Requested-With, Content-Type, Accept, Authorization, signal, params',
+    );
+    next();
+  });
 
 
 app.use(function (req, res, next) {
