@@ -80,18 +80,17 @@ app.post('/token', (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
 
+    if (true) {
 
-        if (true) {
-
-            let token = jwt.sign({ email: 'a@a.com' }, privateKey, {
-                algorithm: 'HS256',
-                expiresIn: '5h'
-            });
-            res.json({ 'token': token })
-        }
-        else {
-            res.status(401).send('Hayırdır gardaş');
-        }
+        let token = jwt.sign({ email: 'a@a.com' }, privateKey, {
+            algorithm: 'HS256',
+            expiresIn: '5h'
+        });
+        res.json({ 'token': token })
+    }
+    else {
+        res.status(401).send('Hayırdır gardaş');
+    }
 
 
 
